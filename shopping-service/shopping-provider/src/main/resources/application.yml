@@ -1,7 +1,6 @@
-
 spring:
   profiles:
-    active: dev
+    active: test
 mybatis:
   mapper-locations: classpath*:com/gpmall/shopping/dal/persistence/*Mapper.xml"
   type-aliases-package: com.gpmall.shopping.dal.entitys
@@ -10,5 +9,3 @@ pagehelper:
   reasonable: true
   support-methods-arguments: true
   params: count=countSql
-server:
-  port: 8888
