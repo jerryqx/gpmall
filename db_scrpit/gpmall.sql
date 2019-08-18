@@ -314,6 +314,7 @@ CREATE TABLE `tb_order` (
   `buyer_message` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '买家留言',
   `buyer_nick` varchar(50) COLLATE utf8_bin DEFAULT NULL COMMENT '买家昵称',
   `buyer_comment` tinyint(1) DEFAULT NULL COMMENT '买家是否已经评价',
+  `unique_key` varchar(50) COLLATE utf8_bin DEFAULT NULL COMMENT '唯一键',
   PRIMARY KEY (`order_id`),
   KEY `create_time` (`create_time`),
   KEY `buyer_nick` (`buyer_nick`),
@@ -470,7 +471,7 @@ INSERT INTO `tb_panel_content` VALUES ('61', '0', '0', null, '5', '', '服务', 
 -- ----------------------------
 DROP TABLE IF EXISTS `tb_payment`;
 CREATE TABLE `tb_payment` (
-  `id` varchar(50) NOT NULL,
+  `id` varchar(50) NOT NULL AUTO_INCREMENT ,
   `status` varchar(20) NOT NULL COMMENT '支付状态',
   `order_id` varchar(50) NOT NULL COMMENT '订单id',
   `product_name` varchar(80) DEFAULT NULL COMMENT '产品名称',
