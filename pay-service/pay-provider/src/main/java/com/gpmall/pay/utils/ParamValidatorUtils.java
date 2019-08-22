@@ -17,7 +17,7 @@ import java.util.Set;
  * @date 2019-08-09 01:16
  */
 
-public final class ParamValidatorUtils {
+public class ParamValidatorUtils {
 
     public static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
@@ -47,13 +47,11 @@ public final class ParamValidatorUtils {
             throw new ValidateException(PayReturnCodeEnum.REQUISITE_PARAMETER_NOT_EXIST.getCode(), msg);
         }
     }
+
     /**
-     * description: 校验对象是否为空
-     * @author yongjun.ji
-     * @date 2018/3/23
-     * @param para 要校验的对象
-     * @param paraName 对象名称
-     * @throws BizException 业务异常
+     * 校验对象是否为空
+     * @param para
+     * @param paraName
      */
     public static void notNull(Object para, String paraName) throws BizException{
         if (para == null) {

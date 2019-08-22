@@ -1,12 +1,15 @@
 package com.gupaoedu.pay.dto;
 
 import com.gpmall.commons.result.AbstractRequest;
-import com.gpmall.pay.biz.payment.validator.validatorextend.PayChannel;
+import com.gupaoedu.pay.validatorextend.PayChannel;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+
 
 /**
  * 腾讯课堂搜索 咕泡学院
@@ -19,7 +22,7 @@ public class PaymentRequest extends AbstractRequest{
      * 用户id
      */
     @NotNull(message = "userId不可为空")
-    private Integer userId;
+    private Long userId;
 
     /**
      * 交易订单号, 统一生成全局唯一的订单号
@@ -31,13 +34,13 @@ public class PaymentRequest extends AbstractRequest{
      * 实际支付金额(单位为分)
      */
     @Min(value = 0, message = "实际支付金额不能为负数")
-    private Integer totalFee;
+    private BigDecimal totalFee;
 
     /**
      * 订单总金额
      */
     @Min(value = 0, message = "订单总金额不能为负数")
-    private Integer orderFee;
+    private BigDecimal orderFee;
 
     /**
      * 商品描述(必填)
@@ -57,9 +60,22 @@ public class PaymentRequest extends AbstractRequest{
      */
     @PayChannel
     private String payChannel;
+    /**
+     * 地址id
+     */
+    private Long addressId;
 
     @Override
     public void requestCheck() {
 
+    }
+
+    public String getSubject() {
+        try {
+            return new String(subject.getBytes(),"utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

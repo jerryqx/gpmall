@@ -153,26 +153,40 @@
               </div>
             </div>
           </div>
-          <div
-            v-if="showCateDiv"
-            style="margin-top: -5px;height: 200px;background: #fff;"
-          >
-            <div style="display: flex;justify-content: center">
+          <div v-if="showCateDiv" class="dropdown-div">
+            <div class="cate-con">
               <div
-                style="margin: 20px 50px;"
+                class="cate"
                 v-for="(item, index) in curCateList"
                 :key="index">
-                <div style="font-size: 12px;color: #000;margin-bottom: 20px">{{item.name}}</div>
+                <div class="cate-name-label">{{item.name}}</div>
                 <div
-                  style="cursor: pointer;display: flex;flex-direction: row;align-items: center"
-                  v-for="childItem, idx in item.children"
+                  class="cate-item"
+                  v-for="(childItem, idx) in item.children"
+                  @click="goGoodsCatePage(childItem)"
                   :key="idx">
-                  <img :src="childItem.iconUrl" style="width: 40px;height: 40px;margin-right: 5px">
-                  <div style="font-weight: 700">{{childItem.name}}</div>
+                  <img :src="childItem.iconUrl" class="item-icon">
+                  <div>{{childItem.name}}</div>
                 </div>
               </div>
             </div>
           </div>
+
+          <div class="dropdown-div" v-if="showRecommend" >
+            <div class="recommend-con">
+              <div v-for="(item, index) in recommendPanel.panelContentItems"
+                   class="recommend-item"
+                   @click="goRecommendGoodsDetail(item)"
+                   :key="index">
+                <div class="item">
+                  <img :src="item.picUrl" alt="手机图片">
+                  <div class="product-name">{{item.productName}}</div>
+                  <div><span class="product-price">&yen;{{item.salePrice}}</span>&nbsp;起</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </slot>
     </div>
@@ -182,7 +196,7 @@
   import YButton from '/components/YButton'
   import { mapMutations, mapState } from 'vuex'
   import { getQuickSearch, getCartList, cartDel, getAllGoodsCategories } from '/api/goods'
-  import { loginOut, navList } from '/api/index'
+  import { loginOut, navList, recommend } from '/api/index'
   import { setStore, getStore, removeStore } from '/utils/storage'
 
   // import store from '../store/'
@@ -193,10 +207,12 @@
       return {
         // visible
         showCateDiv: false,
+        showRecommend: false,  // 产品分类是否显示 推荐商品 （手机板块显示推荐商品）
 
         // data
         curCateList: [],
         curItem: null,
+        recommendPanel: null,
 
         goodsCateList: [], // 产品分类列表
         goodsCateTree: {}, // 树级机构的产品分类列表
@@ -242,14 +258,23 @@
       ...mapMutations(['ADD_CART', 'INIT_BUYCART', 'ADD_ANIMATION', 'SHOW_CART', 'REDUCE_CART', 'RECORD_USERINFO', 'EDIT_CART']),
       handleNavItemMouseEnter (item, index) {
         let cateName = item.picUrl
+        this.showRecommend = false
+        if (cateName === '手机') {
+          this.showCateDiv = false
+          this.showRecommend = true
+          return
+        }
         let cate = this.goodsCateTree[cateName]
         if (cate) {
           this.curCateList = cate.children
           this.showCateDiv = true
+        } else {
+          this.showCateDiv = false
         }
       },
       handleNavSubMouseLeave () {
         this.showCateDiv = false
+        this.showRecommend = false
       },
       handleIconClick (ev) {
         if (this.$route.path === '/search') {
@@ -267,6 +292,16 @@
             }
           })
         }
+      },
+      goGoodsCatePage (childCateItem) {
+        let {id} = childCateItem
+        this.$router.push('/goods/cate/' + id)
+        this.showCateDiv = false
+      },
+      goRecommendGoodsDetail (item) {
+        let {productId} = item
+        this.$router.push('/product/' + productId)
+        this.showRecommend = false
       },
       showError (m) {
         this.$message.error({
@@ -287,14 +322,6 @@
           this.$router.push({
             path: '/refreshgoods'
           })
-        } else {
-          // 站内跳转
-          if (item.type === 1) {
-            window.location.href = item.fullUrl
-          } else {
-            // 站外跳转
-            window.open(item.fullUrl)
-          }
         }
       },
       // 搜索框提示
@@ -464,11 +491,18 @@
           }
         }
         return tree
+      },
+      _getRecommendGoodsAsPhone () {
+        recommend().then(res => {
+          let data = res.result
+          this.recommendPanel = data[0]
+        })
       }
     },
     mounted () {
       this._getNavList()
       this._getGoodsCategoryList()
+      this._getRecommendGoodsAsPhone()
       this.token = getStore('token')
       if (this.login) {
         this._getCartList()
@@ -1163,6 +1197,74 @@
     background: url("/static/images/cart-empty-new.png") no-repeat;
     background-size: cover;
 
+  }
+
+  .dropdown-div {
+    margin-top: -5px;
+    height: 200px;
+    background: #fff;
+
+    .cate-con {
+      display: flex;
+      justify-content: center;
+
+      .cate {
+        margin: 20px 50px;
+
+        .cate-name-label {
+          font-size: 12px;
+          color: #000;
+          margin-bottom: 20px;
+        }
+        .cate-item {
+          cursor: pointer;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+
+          .item-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 5px;
+          }
+
+          div {
+            font-weight: 700
+          }
+        }
+      }
+    }
+
+    .recommend-con {
+      display: flex;
+      justify-content: center;
+
+      .recommend-item {
+        margin: 20px;
+        cursor: pointer;
+
+        .item {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+
+          img {
+            width: 126px;
+            height: 126px;
+          }
+          .product-name {
+            font-weight: 700;
+          }
+          div {
+            text-align: center;
+            margin-top: 3px;
+          }
+          .product-price {
+            color: #d44d44;
+          }
+        }
+      }
+    }
   }
 </style>
 
